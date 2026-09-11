@@ -46,7 +46,6 @@ jobs:
         run: |
           .venv/bin/repo2gal ${{ github.repository }} \
             --mode overview \
-            --reuse-backup \
             --asset-pack builtin:cc0-chronicle \
             --public-assets
 
