@@ -1,0 +1,57 @@
+name: gal
+
+on:
+  # 仅手动触发, 节省 token; fork 上 Pages 已被上游禁用, 改为本地下载 artifact 自服
+  workflow_dispatch:
+
+# 权限最小化: 读仓库即可, 不再需要 Pages 相关
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Overview gal docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # python-github-backup 需要完整历史
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install libmagic
+        # Asset Pack MIME 校验依赖 libmagic, 不装会失败
+        run: sudo apt-get update && sudo apt-get install -y libmagic1
+
+      - name: Install Repo2Gal
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --quiet repo2gal
+
+      - name: Generate Overview gal docs
+        env:
+          # GitHub Actions 默认提供的 token, 用于 REST 抓取
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # LLM 鉴权, 复用 reviewer CI 的同一个 secret
+          REPO2GAL_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          # 复用 reviewer CI 的 endpoint, 保持单一出口
+          REPO2GAL_BASE_URL: https://api.minimaxi.com/anthropic
+          REPO2GAL_MODEL: MiniMax-M3
+        run: |
+          .venv/bin/repo2gal ${{ github.repository }} \
+            --mode overview \
+            --reuse-backup \
+            --asset-pack builtin:cc0-chronicle \
+            --public-assets
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gal-overview
+          # GitHub Actions artifact 默认保留 90 天, 够手动下载
+          retention-days: 90
+          # Repo2Gal 默认产物目录是 output/<repo>-overview
+          path: output/weihuda_weapp_tsumiki-overview
