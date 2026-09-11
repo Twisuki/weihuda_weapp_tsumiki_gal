@@ -31,7 +31,8 @@ jobs:
       - name: Install Repo2Gal
         run: |
           python -m venv .venv
-          .venv/bin/pip install --quiet repo2gal
+          # repo2gal 没发到 PyPI, 从 GitHub pin commit 装, 避免 upstream main 改动导致 CI 挂
+          .venv/bin/pip install --quiet "git+https://github.com/RhoPaper/Repo2Gal.git@53d1f2fa6ebcdf6bcf882308daee321bbc869db0"
 
       - name: Generate Overview gal docs
         env:
