@@ -1,12 +1,14 @@
 name: gal
 
 on:
-  # 仅手动触发, 节省 token; fork 上 Pages 已被上游禁用, 改为本地下载 artifact 自服
+  # 仅手动触发, 节省 token; 走 GitHub Pages 部署, 跑完直接访问
   workflow_dispatch:
 
-# 权限最小化: 读仓库即可, 不再需要 Pages 相关
+# Pages 部署需要: 读仓库, 写 Pages, OIDC 部署
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
@@ -47,11 +49,20 @@ jobs:
             --asset-pack builtin:cc0-chronicle \
             --public-assets
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: gal-overview
-          # GitHub Actions artifact 默认保留 90 天, 够手动下载
-          retention-days: 90
-          # Repo2Gal 默认产物目录是 output/<repo>-overview
-          path: output/weihuda_weapp_tsumiki-overview
+          # Repo2Gal 默认产物目录是 output/<repo>-overview,
+          # 仓库名带下划线, 路径也跟着带
+          path: output/weihuda_weapp_tsumiki_gal-overview
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
