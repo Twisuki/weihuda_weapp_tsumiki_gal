@@ -38,11 +38,11 @@ jobs:
         env:
           # GitHub Actions 默认提供的 token, 用于 REST 抓取
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # LLM 鉴权, 复用 reviewer CI 的同一个 secret
-          REPO2GAL_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          # 复用 reviewer CI 的 endpoint, 保持单一出口
-          REPO2GAL_BASE_URL: https://api.minimax.cn/v1
-          REPO2GAL_MODEL: MiniMax-M3
+          # LLM 鉴权: gal 走 DeepSeek, 与 reviewer CI (走 minimaxi) 解耦, 各自独立 secret
+          REPO2GAL_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          # DeepSeek 官方 OpenAI 兼容端点; minimaxi 第三轮长生成易 RST, 切到 DeepSeek 更稳
+          REPO2GAL_BASE_URL: https://api.deepseek.com
+          REPO2GAL_MODEL: deepseek-flash
         run: |
           .venv/bin/repo2gal ${{ github.repository }} \
             --mode overview \
