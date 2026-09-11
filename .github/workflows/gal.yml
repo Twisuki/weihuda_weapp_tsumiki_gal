@@ -41,7 +41,7 @@ jobs:
           # LLM 鉴权, 复用 reviewer CI 的同一个 secret
           REPO2GAL_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           # 复用 reviewer CI 的 endpoint, 保持单一出口
-          REPO2GAL_BASE_URL: https://api.minimaxi.com/anthropic
+          REPO2GAL_BASE_URL: https://api.minimax.cn/v1
           REPO2GAL_MODEL: MiniMax-M3
         run: |
           .venv/bin/repo2gal ${{ github.repository }} \
