@@ -47,7 +47,8 @@ jobs:
           .venv/bin/repo2gal ${{ github.repository }} \
             --mode overview \
             --asset-pack builtin:cc0-chronicle \
-            --public-assets
+            --public-assets \
+            --timeout 600
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
